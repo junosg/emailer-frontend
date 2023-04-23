@@ -24,6 +24,11 @@
             <!-- <button @click="abandon()">Abandon</button> -->
             <button @click="save()">Save</button>
         </div>
+        <div class="cookie-display-container">
+            <div>
+                <div v-for="cookie in getCookies()" :key="cookie"> {{cookie.value}}</div>
+            </div>
+        </div>
     </div>
 </template>
     
@@ -38,19 +43,21 @@ export default defineComponent({
         return {
             email: defaultEmail,
             settings: {
-                delay: 600000
+                delay: 600000,
             }
         }
     },
     methods: {
         async abandon() {
+            const cookieExpiration = 3600;
+
             const payload = {
                 ...this.email,
                 delay: this.settings.delay
             }
 
             if (this.email.to && this.email.to.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/) && this.getCookie(`emailerEmail(${this.email.to})`) == null) {
-                document.cookie = `emailerEmail(${this.email.to})=${this.email.to}; max-age=86400;`;
+                document.cookie = `emailerEmail(${this.email.to})=${this.email.to}; max-age=${cookieExpiration};`;
 
                 await EmailerService.SendDelayedEmail(payload).then((response) => {
                     console.log(response);
@@ -100,5 +107,15 @@ export default defineComponent({
     display: grid;
     grid-template-columns: auto;
     gap: 1em;
+}
+
+.cookie-display-container {
+    display: grid;
+    place-items: center;
+}
+
+.cookie-display-container div {
+    max-width: 30em;
+    word-break: break-all;
 }
 </style>
