@@ -1,6 +1,6 @@
 import { Axios } from "@/helpers/axios"
 
-export class EmailerService {
+export default class EmailerService {
     static SendDelayedEmail(payload: object) {
         return Axios.post('/emailer/delayedEmail', payload)
     }

@@ -2,7 +2,7 @@
     <div class="prospect-form-container">
         <div>
             <label>Email</label>
-            <div><input v-model="email.to" @blur="abandon()"/></div>
+            <div><input v-model="email.to" @blur="abandon()" type="email"/></div>
         </div>
         <div>
             <label>Subject</label>
@@ -17,11 +17,16 @@
             <div><input v-model="email.html"/></div>
         </div>
         <div>
-            <label>Delay in milliseconds</label>
-            <div><input v-model="settings.delay"/></div>
+            <label>Email Delay (minutes)</label>
+            <div><input v-model="settings.emailDelay" type="number"/></div>
         </div>
         <div>
-            <!-- <button @click="abandon()">Abandon</button> -->
+            <label>Cookie Expiration Delay (minutes)</label>
+            <div><input v-model="settings.cookieExpirationDelay" type="number"/></div>
+
+            {{settings.cookieExpirationDelay}}
+        </div>
+        <div>
             <button @click="save()">Save</button>
         </div>
         <div class="cookie-display-container">
@@ -33,7 +38,8 @@
 </template>
     
 <script lang='ts'>
-import { EmailerService } from "@/sevices/emailer.service"
+import EmailerService from "@/sevices/emailer.service"
+import CookieService from "@/sevices/cookie.service"
 import { Email, defaultEmail } from "@/models/email.model"
 import { CookiePair } from "@/models/cookie.model"
 import { defineComponent } from "vue";
@@ -41,34 +47,32 @@ import { defineComponent } from "vue";
 export default defineComponent({
     data() {
         return {
-            email: defaultEmail,
+            email: defaultEmail as Email,
             settings: {
-                delay: 600000, //Unit is ms. Email will be sent after 10 minutes.
+                emailDelay: 10, //Unit in minutes. Email will be sent after 10 minutes.
+                cookieExpirationDelay: 10 //Unit in minutes. Cookie will expire after 10 minutes.
             },
             cookies: [] as Array<CookiePair>
         }
     },
     mounted() {
-        this.cookies = this.getCookies();
+        this.cookies = CookieService.getCookies();
     },
     methods: {
         async abandon() {
-            //cookie will expire in 10 minutes
-            const cookieExpiration = 60000;
-
             const payload = {
                 ...this.email,
-                delay: this.settings.delay
+                delay: this.delayInMilleseconds
             }
 
-            if (this.email.to && this.email.to.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/) && this.getCookie(`emailerEmail(${this.email.to})`) == null) {
+            if (this.email.to && this.email.to.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/) && CookieService.getCookie(`emailerEmail(${this.email.to})`) == null) {
                 const cookieExpiryDate = new Date();
-                cookieExpiryDate.setTime(cookieExpiryDate.getTime()+cookieExpiration);
+                cookieExpiryDate.setMinutes(cookieExpiryDate.getMinutes()+this.settings.cookieExpirationDelay);
                 document.cookie = `emailerEmail(${this.email.to})=${this.email.to}; expires=${cookieExpiryDate.toUTCString()};`;
 
                 await EmailerService.SendDelayedEmail(payload).then((response) => {
                     console.log(response);
-                    this.cookies = this.getCookies();
+                    this.cookies = CookieService.getCookies();
                 }).catch((error) => {
                     console.log(error);
                 });
@@ -86,27 +90,12 @@ export default defineComponent({
                 });
             }
         },
-
-        getCookies(): Array<CookiePair> {
-            let cookies: Array<string> = decodeURIComponent(document.cookie).trim().split(";");
-            let cookiePairs: Array<CookiePair> = [];
-
-            cookies.forEach((cookie) => {
-                let cookiePairArray: Array<string> = cookie.trim().split("=");
-                cookiePairs.push({key: cookiePairArray[0], value: cookiePairArray[1]});
-            });
-
-            return cookiePairs;
-        },
-
-        getCookie(cookieKey: string): CookiePair|null {
-            let cookiePair: CookiePair = this.getCookies().filter((cookie) => {return cookie.key == cookieKey})[0];
-
-            if (cookiePair == undefined) return null;
-
-            return cookiePair;
-        }
     },
+    computed: {
+        delayInMilleseconds(): number {
+            return Number(this.settings.emailDelay * 60000);
+        }
+    }
 })
 </script>
     
