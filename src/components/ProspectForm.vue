@@ -49,6 +49,7 @@ export default defineComponent({
     },
     methods: {
         async abandon() {
+            //cookie will expire in 10 minutes
             const cookieExpiration = 3600;
 
             const payload = {
