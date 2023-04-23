@@ -43,7 +43,7 @@ export default defineComponent({
         return {
             email: defaultEmail,
             settings: {
-                delay: 600000,
+                delay: 600000, //Unit is ms. Email will be sent after 10 minutes.
             },
             cookies: [] as Array<CookiePair>
         }
@@ -54,7 +54,7 @@ export default defineComponent({
     methods: {
         async abandon() {
             //cookie will expire in 10 minutes
-            const cookieExpiration = 3600;
+            const cookieExpiration = 600000;
 
             const payload = {
                 ...this.email,
@@ -62,7 +62,9 @@ export default defineComponent({
             }
 
             if (this.email.to && this.email.to.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/) && this.getCookie(`emailerEmail(${this.email.to})`) == null) {
-                document.cookie = `emailerEmail(${this.email.to})=${this.email.to}; max-age=${cookieExpiration};`;
+                const cookieExpiryDate = new Date();
+                cookieExpiryDate.setTime(cookieExpiryDate.getTime()+cookieExpiration);
+                document.cookie = `emailerEmail(${this.email.to})=${this.email.to}; expires=${cookieExpiryDate.toUTCString()};`;
 
                 await EmailerService.SendDelayedEmail(payload).then((response) => {
                     console.log(response);
