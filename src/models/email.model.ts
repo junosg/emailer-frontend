@@ -5,7 +5,6 @@ export interface Email extends Object {
     html: string
 }
 
-
 export const defaultEmail: Email = {
     to: '',
     subject: 'For testing purposes.',
