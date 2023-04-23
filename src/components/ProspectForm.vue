@@ -26,7 +26,7 @@
         </div>
         <div class="cookie-display-container">
             <div>
-                <div v-for="cookie in getCookies()" :key="cookie"> {{cookie.value}}</div>
+                <div v-for="cookie in cookies" :key="cookie"> {{cookie.value}}</div>
             </div>
         </div>
     </div>
@@ -44,8 +44,12 @@ export default defineComponent({
             email: defaultEmail,
             settings: {
                 delay: 600000,
-            }
+            },
+            cookies: [] as Array<CookiePair>
         }
+    },
+    mounted() {
+        this.cookies = this.getCookies();
     },
     methods: {
         async abandon() {
@@ -62,6 +66,7 @@ export default defineComponent({
 
                 await EmailerService.SendDelayedEmail(payload).then((response) => {
                     console.log(response);
+                    this.cookies = this.getCookies();
                 }).catch((error) => {
                     console.log(error);
                 });
