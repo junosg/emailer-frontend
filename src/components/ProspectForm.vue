@@ -2,30 +2,30 @@
     <div class="prospect-form-container">
         <div>
             <label>Email</label>
-            <div><input v-model="email.to" @blur="abandon()" type="email"/></div>
+            <div><input v-model="email.to" @blur="abandon()" type="email" :disabled="formState.isLoading"/></div>
         </div>
         <div>
             <label>Subject</label>
-            <div><input v-model="email.subject"/></div>
+            <div><input v-model="email.subject" :disabled="formState.isLoading"/></div>
         </div>
         <div>
             <label>Text</label>
-            <div><input v-model="email.text"/></div>
+            <div><input v-model="email.text" :disabled="formState.isLoading"/></div>
         </div>
         <div>
             <label>Html</label>
-            <div><input v-model="email.html"/></div>
+            <div><input v-model="email.html" :disabled="formState.isLoading"/></div>
         </div>
         <div>
             <label>Email Delay (minutes)</label>
-            <div><input v-model="settings.emailDelay" type="number"/></div>
+            <div><input v-model="settings.emailDelay" type="number" :disabled="formState.isLoading"/></div>
         </div>
         <div>
             <label>Cookie Expiration Delay (minutes)</label>
-            <div><input v-model="settings.cookieExpirationDelay" type="number"/></div>
+            <div><input v-model="settings.cookieExpirationDelay" type="number" :disabled="formState.isLoading"/></div>
         </div>
         <div>
-            <button @click="save()">Save</button>
+            <button @click="save()" :disabled="formState.isLoading">Save</button>
         </div>
         <div class="cookie-display-container">
             <div>
@@ -50,7 +50,10 @@ export default defineComponent({
                 emailDelay: 10, //Unit in minutes. Email will be sent after 10 minutes.
                 cookieExpirationDelay: 10 //Unit in minutes. Cookie will expire after 10 minutes.
             },
-            cookies: [] as Array<CookiePair>
+            cookies: [] as Array<CookiePair>,
+            formState: {
+                isLoading: false,
+            }
         }
     },
     mounted() {
@@ -58,6 +61,8 @@ export default defineComponent({
     },
     methods: {
         async abandon() {
+            this.formState.isLoading = true;
+
             const payload = {
                 ...this.email,
                 delay: this.delayInMilleseconds
@@ -75,9 +80,13 @@ export default defineComponent({
                     console.log(error);
                 });
             }
+
+            this.formState.isLoading = false;
         },
 
         async save() {
+            this.formState.isLoading = true;
+
             const payload = {
                 email: this.email.to
             }
@@ -87,6 +96,8 @@ export default defineComponent({
                     this.email = defaultEmail;
                 });
             }
+
+            this.formState.isLoading = false;
         },
     },
     computed: {
