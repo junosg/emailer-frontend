@@ -23,8 +23,6 @@
         <div>
             <label>Cookie Expiration Delay (minutes)</label>
             <div><input v-model="settings.cookieExpirationDelay" type="number"/></div>
-
-            {{settings.cookieExpirationDelay}}
         </div>
         <div>
             <button @click="save()">Save</button>
