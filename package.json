@@ -1,5 +1,5 @@
 {
-  "name": "email-sender-frontend",
+  "name": "emailer-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
