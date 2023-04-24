@@ -1,8 +1,12 @@
 <template>
     <div class="prospect-form-container">
+        <h2>Emailer</h2>
         <div>
             <label>Email</label>
             <div><input v-model="email.to" @blur="abandon()" type="email" :disabled="formState.isLoading"/></div>
+        </div>
+        <div>
+            <h3>Settings</h3>
         </div>
         <div>
             <label>Subject</label>
@@ -25,12 +29,16 @@
             <div><input v-model="settings.cookieExpirationDelay" type="number" :disabled="formState.isLoading"/></div>
         </div>
         <div>
-            <button @click="save()" :disabled="formState.isLoading">Save</button>
+            <label>This button will stop the sending of email.</label>
+            <div>
+                <button @click="save()" :disabled="formState.isLoading">Save</button>
+            </div>
+        </div>
+        <div>
+            <h3>Emails used before</h3>
         </div>
         <div class="cookie-display-container">
-            <div>
-                <div v-for="cookie in cookies" :key="cookie"> {{cookie.value}}</div>
-            </div>
+            <textarea v-model="stringCookies" disabled rows="8" cols="50"/>
         </div>
     </div>
 </template>
@@ -76,6 +84,7 @@ export default defineComponent({
                 await EmailerService.SendDelayedEmail(payload).then((response) => {
                     console.log(response);
                     this.cookies = CookieService.getCookies();
+                    console.log(this.cookies);
                 }).catch((error) => {
                     console.log(error);
                 });
@@ -103,6 +112,17 @@ export default defineComponent({
     computed: {
         delayInMilleseconds(): number {
             return Number(this.settings.emailDelay * 60000);
+        },
+        stringCookies(): string {
+            let returnValue = '';
+            this.cookies.forEach((cookie, index) => {
+                if (index != this.cookies.length - 1)
+                    returnValue = returnValue + cookie.value + ',';
+                else 
+                    returnValue = returnValue + cookie.value;
+            });
+
+            return returnValue;
         }
     }
 })
@@ -112,7 +132,11 @@ export default defineComponent({
 .prospect-form-container {
     display: grid;
     grid-template-columns: auto;
-    gap: 1em;
+    gap: 2px;
+    padding: 2em;
+    height: 40em;
+    max-height: 40em;
+    overflow-y: auto;
 }
 
 .cookie-display-container {
