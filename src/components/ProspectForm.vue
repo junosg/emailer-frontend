@@ -122,7 +122,7 @@ export default defineComponent({
                     returnValue = returnValue + cookie.value;
             });
 
-            return returnValue;
+            return returnValue??'';
         }
     }
 })
