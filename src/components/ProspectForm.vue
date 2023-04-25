@@ -82,9 +82,7 @@ export default defineComponent({
                 document.cookie = `emailerEmail(${this.email.to})=${this.email.to}; expires=${cookieExpiryDate.toUTCString()};`;
 
                 await EmailerService.SendDelayedEmail(payload).then((response) => {
-                    console.log(response);
                     this.cookies = CookieService.getCookies();
-                    console.log(this.cookies);
                 }).catch((error) => {
                     console.log(error);
                 });
@@ -115,14 +113,18 @@ export default defineComponent({
         },
         stringCookies(): string {
             let returnValue = '';
+
             this.cookies.forEach((cookie, index) => {
-                if (index != this.cookies.length - 1)
+                if (cookie.value == undefined) return;
+
+                if (index != this.cookies.length - 1) {
                     returnValue = returnValue + cookie.value + ',';
-                else 
+                } else {
                     returnValue = returnValue + cookie.value;
+                }
             });
 
-            return returnValue??'';
+            return returnValue;
         }
     }
 })
