@@ -9,7 +9,8 @@
             <li>Input another email not in <b>Emails used before</b></li>
             <li>Focus out again to send another delayed email</li>
         </ol>
-        <h5 style="color: red;">!! Warning: After 15 minutes of inactivity, Render will stop the service until it is being used again. This might make the first request in a while to be too slow because Render will try to up the service again. !!</h5>
+        <h4 style="color: red;">Warning: </h4>
+        <h5>After 15 minutes of inactivity, Render (Free tier) will stop the service until it is being used again. This might make the first request in a while to be too slow because Render will try to up the service again.</h5>
     </div>
 </template>
 
